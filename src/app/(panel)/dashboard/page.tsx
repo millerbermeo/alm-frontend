@@ -7,7 +7,9 @@ import { getCurrentUser } from "@/lib/server/auth";
 import { getBackendStatus } from "@/lib/server/health";
 import { PageHeader } from "@/components/layout/page-header";
 import { Card, CardBody, CardHeader, CardTitle } from "@/components/ui/card";
+import { StatCard } from "@/components/ui/stat-card";
 import { RoleBadge } from "@/components/ui/role-badge";
+import { ArrowRightIcon, BoxIcon, GearIcon, KeyIcon } from "@/components/ui/icons";
 
 export const metadata: Metadata = { title: "Panel" };
 
@@ -36,7 +38,13 @@ export default async function DashboardPage() {
       {/* Service health tiles */}
       <section aria-label="Estado de los servicios" className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {services.map((s) => (
-          <StatTile key={s.label} {...s} />
+          <StatCard
+            key={s.label}
+            label={s.label}
+            value={<span className="capitalize">{s.value}</span>}
+            dotTone={s.ok ? "success" : "danger"}
+            delta={{ text: s.ok ? "Operativo" : "Con incidencias", tone: s.ok ? "success" : "danger" }}
+          />
         ))}
       </section>
 
@@ -101,18 +109,6 @@ export default async function DashboardPage() {
   );
 }
 
-function StatTile({ label, value, ok }: { label: string; value: string; ok: boolean }) {
-  return (
-    <Card className="p-4">
-      <div className="flex items-center justify-between">
-        <span className="text-xs font-medium uppercase tracking-wide text-muted">{label}</span>
-        <span className={`size-2.5 rounded-full ${ok ? "bg-success" : "bg-danger"}`} />
-      </div>
-      <p className="mt-2 text-lg font-semibold capitalize text-foreground">{value}</p>
-    </Card>
-  );
-}
-
 function Field({ label, value }: { label: string; value: ReactNode }) {
   return (
     <div className="flex items-center justify-between gap-3">
@@ -144,7 +140,7 @@ function QuickLink({
       <span className="min-w-0">
         <span className="flex items-center gap-1 text-sm font-semibold text-foreground">
           {title}
-          <ArrowIcon className="size-4 -translate-x-1 opacity-0 transition-all group-hover:translate-x-0 group-hover:opacity-100" />
+          <ArrowRightIcon className="size-4 -translate-x-1 opacity-0 transition-all group-hover:translate-x-0 group-hover:opacity-100" />
         </span>
         <span className="mt-1 block text-sm text-muted">{body}</span>
       </span>
@@ -152,34 +148,3 @@ function QuickLink({
   );
 }
 
-function BoxIcon() {
-  return (
-    <svg viewBox="0 0 24 24" className="size-5" fill="none" stroke="currentColor" strokeWidth={2} strokeLinejoin="round">
-      <path d="M21 8 12 3 3 8v8l9 5 9-5Z" />
-      <path d="m3 8 9 5 9-5M12 13v8" />
-    </svg>
-  );
-}
-function KeyIcon() {
-  return (
-    <svg viewBox="0 0 24 24" className="size-5" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
-      <circle cx="8" cy="15" r="4" />
-      <path d="m10.8 12.2 8.2-8.2M17 5l2 2M15 7l2 2" />
-    </svg>
-  );
-}
-function GearIcon() {
-  return (
-    <svg viewBox="0 0 24 24" className="size-5" fill="none" stroke="currentColor" strokeWidth={2}>
-      <circle cx="12" cy="12" r="3" />
-      <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 8 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 3.6 15a1.65 1.65 0 0 0-1.51-1H2a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 3.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 8 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9c.2.62.78 1.02 1.42 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z" />
-    </svg>
-  );
-}
-function ArrowIcon({ className }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
-      <path d="M5 12h14M13 6l6 6-6 6" />
-    </svg>
-  );
-}

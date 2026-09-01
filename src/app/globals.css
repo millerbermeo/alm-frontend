@@ -78,9 +78,11 @@
 
 /* App-level utility: the panel content column. Fluid — fills the viewport
    width the shell gives it — with gutters that open up on larger screens.
-   No max-width: dashboards, tables and image grids use the full width. */
+   Capped on very wide monitors so dashboards, tables and grids stay readable
+   instead of stretching edge to edge. */
 @utility container-page {
   width: 100%;
+  max-inline-size: 120rem;
   margin-inline: auto;
   padding-inline: clamp(1rem, 0.4rem + 2.2vw, 2.5rem);
 }

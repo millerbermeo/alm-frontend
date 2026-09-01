@@ -3,9 +3,9 @@
 import type { ReactNode } from "react";
 
 import { cn } from "@/lib/utils/cn";
-import { LoadingState } from "@/components/ui/spinner";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Alert } from "@/components/ui/alert";
+import { TableSkeleton } from "@/components/ui/skeleton";
 import { toMessage } from "@/lib/errors";
 
 export interface Column<T> {
@@ -14,6 +14,11 @@ export interface Column<T> {
   cell: (row: T) => ReactNode;
   className?: string;
   align?: "left" | "right" | "center";
+  /**
+   * Right-aligns the column and renders its cells with tabular figures — use
+   * for numbers, sizes, counts and dates so digits line up between rows.
+   */
+  numeric?: boolean;
 }
 
 interface DataTableProps<T> {
@@ -27,6 +32,8 @@ interface DataTableProps<T> {
   empty?: { title: string; description?: ReactNode; action?: ReactNode };
   onRowClick?: (row: T) => void;
   caption?: string;
+  /** Min table width before the container scrolls horizontally (tablet). */
+  minWidth?: string;
 }
 
 /**
@@ -44,8 +51,9 @@ export function DataTable<T>({
   empty,
   onRowClick,
   caption,
+  minWidth = "44rem",
 }: DataTableProps<T>) {
-  if (isLoading) return <LoadingState label="Cargando…" />;
+  if (isLoading) return <TableSkeleton cols={columns.length} />;
 
   if (error) {
     return (
@@ -71,26 +79,29 @@ export function DataTable<T>({
   return (
     <div className="relative overflow-x-auto rounded-xl border border-border bg-surface">
       {isFetching ? (
-        <div className="absolute inset-x-0 top-0 z-10 h-0.5 animate-pulse bg-accent" aria-hidden />
+        <div className="absolute inset-x-0 top-0 z-20 h-0.5 animate-pulse bg-accent" aria-hidden />
       ) : null}
-      <table className="w-full border-collapse text-sm">
+      <table className="w-full border-collapse text-sm" style={{ minWidth }}>
         {caption ? <caption className="sr-only">{caption}</caption> : null}
         <thead>
-          <tr className="border-b border-border bg-surface-secondary/40 text-left text-xs uppercase tracking-wide text-muted">
-            {columns.map((c) => (
-              <th
-                key={c.key}
-                scope="col"
-                className={cn(
-                  "whitespace-nowrap px-4 py-3 font-medium",
-                  c.align === "right" && "text-right",
-                  c.align === "center" && "text-center",
-                  c.className,
-                )}
-              >
-                {c.header}
-              </th>
-            ))}
+          <tr className="text-left text-xs uppercase tracking-wide text-muted">
+            {columns.map((c) => {
+              const right = c.align === "right" || c.numeric;
+              return (
+                <th
+                  key={c.key}
+                  scope="col"
+                  className={cn(
+                    "sticky top-0 z-10 whitespace-nowrap border-b border-border bg-surface-secondary px-4 py-3 font-medium",
+                    right && "text-right",
+                    c.align === "center" && "text-center",
+                    c.className,
+                  )}
+                >
+                  {c.header}
+                </th>
+              );
+            })}
           </tr>
         </thead>
         <tbody className="divide-y divide-border">
@@ -103,19 +114,23 @@ export function DataTable<T>({
                 onRowClick && "cursor-pointer hover:bg-surface-secondary/60",
               )}
             >
-              {columns.map((c) => (
-                <td
-                  key={c.key}
-                  className={cn(
-                    "px-4 py-4 align-middle text-foreground",
-                    c.align === "right" && "text-right",
-                    c.align === "center" && "text-center",
-                    c.className,
-                  )}
-                >
-                  {c.cell(row)}
-                </td>
-              ))}
+              {columns.map((c) => {
+                const right = c.align === "right" || c.numeric;
+                return (
+                  <td
+                    key={c.key}
+                    className={cn(
+                      "px-4 py-4 align-middle text-foreground",
+                      right && "text-right",
+                      c.align === "center" && "text-center",
+                      c.numeric && "tabular-nums",
+                      c.className,
+                    )}
+                  >
+                    {c.cell(row)}
+                  </td>
+                );
+              })}
             </tr>
           ))}
         </tbody>

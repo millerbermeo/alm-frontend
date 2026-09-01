@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { DataTable, type Column } from "@/components/ui/data-table";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { SectionHeader } from "@/components/ui/section-header";
 import { SectionIntro } from "@/components/ui/section-intro";
 import {
   useApiKeys,
@@ -78,11 +79,13 @@ export function ApiKeysView({ projectId }: { projectId: string }) {
     {
       key: "used",
       header: "Último uso",
+      numeric: true,
       cell: (k) => (k.last_used_at ? formatRelative(k.last_used_at) : "Nunca"),
     },
     {
       key: "expires",
       header: "Caducidad",
+      numeric: true,
       cell: (k) => (k.expires_at ? formatDate(k.expires_at) : "—"),
     },
     {
@@ -90,7 +93,7 @@ export function ApiKeysView({ projectId }: { projectId: string }) {
       header: "",
       align: "right",
       cell: (k) => (
-        <div className="flex justify-end gap-1.5">
+        <div className="flex justify-end gap-1">
           <Button
             size="sm"
             variant="ghost"
@@ -144,14 +147,12 @@ export function ApiKeysView({ projectId }: { projectId: string }) {
   };
 
   return (
-    <div className="space-y-4">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <h2 className="text-lg font-semibold text-foreground">Claves API</h2>
-          <p className="text-sm text-muted">Credenciales que usan las apps para llamar a la API de imágenes.</p>
-        </div>
-        <Button onPress={() => setFormOpen(true)}>Nueva clave API</Button>
-      </div>
+    <div className="space-y-6">
+      <SectionHeader
+        title="Claves API"
+        description="Credenciales que usan las apps para llamar a la API de imágenes."
+        actions={<Button onPress={() => setFormOpen(true)}>Nueva clave API</Button>}
+      />
 
       <SectionIntro
         id="api-keys"

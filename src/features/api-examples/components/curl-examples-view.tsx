@@ -3,6 +3,8 @@
 import { useMemo, useState } from "react";
 
 import { SectionIntro } from "@/components/ui/section-intro";
+import { SectionHeader } from "@/components/ui/section-header";
+import { FormSection } from "@/components/ui/form-section";
 import { TextField } from "@/components/ui/text-field";
 import { SelectField } from "@/components/ui/select-field";
 import { CopyButton } from "@/components/ui/copy-button";
@@ -40,14 +42,11 @@ export function CurlExamplesView({
   const snippets = useMemo(() => buildSnippets(config), [config]);
 
   return (
-    <div className="space-y-4">
-      <div>
-        <h2 className="text-lg font-semibold text-foreground">Ejemplos cURL</h2>
-        <p className="text-sm text-muted">
-          Comandos listos para pegar en Postman o la terminal y probar carga, listado, edición y
-          eliminación de imágenes contra la API pública.
-        </p>
-      </div>
+    <div className="space-y-6">
+      <SectionHeader
+        title="Ejemplos cURL"
+        description="Comandos listos para pegar en Postman o la terminal y probar carga, listado, edición y eliminación de imágenes contra la API pública."
+      />
 
       <SectionIntro
         id="api-examples"
@@ -63,7 +62,12 @@ export function CurlExamplesView({
         imágenes sin escribir código.
       </SectionIntro>
 
-      <div className="grid gap-3 rounded-xl border border-border bg-surface p-4 sm:grid-cols-2">
+      <FormSection
+        title="Parámetros"
+        description="Valores con los que se arman los comandos. Nada se guarda."
+        columns={2}
+        className="rounded-xl border border-border bg-surface p-4"
+      >
         <TextField
           label="Base URL de la API"
           value={config.baseUrl}
@@ -118,7 +122,7 @@ export function CurlExamplesView({
           onChange={(e) => set("search", e.target.value)}
           placeholder="texto a buscar (opcional)"
         />
-      </div>
+      </FormSection>
 
       <p className="text-xs text-muted">
         Proyecto <code className="font-mono">{projectId}</code> — la API deduce el proyecto de la

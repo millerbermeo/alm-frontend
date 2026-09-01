@@ -8,7 +8,9 @@ import { Alert } from "@/components/ui/alert";
 import { LoadingState } from "@/components/ui/spinner";
 import { EmptyState } from "@/components/ui/empty-state";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { SectionHeader } from "@/components/ui/section-header";
 import { SectionIntro } from "@/components/ui/section-intro";
+import { FolderIcon } from "@/components/ui/icons";
 import { useDeleteFolder, useFolders } from "@/features/folders/hooks";
 import { buildFolderTree, flattenTree } from "@/features/folders/tree";
 import { FolderFormModal } from "@/features/folders/components/folder-form-modal";
@@ -35,14 +37,12 @@ export function FoldersView({ projectId }: { projectId: string }) {
   }
 
   return (
-    <div className="space-y-4">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <h2 className="text-lg font-semibold text-foreground">Carpetas</h2>
-          <p className="text-sm text-muted">Organiza las imágenes de este proyecto en un árbol de rutas.</p>
-        </div>
-        <Button onPress={() => openCreate(undefined)}>Nueva carpeta</Button>
-      </div>
+    <div className="space-y-6">
+      <SectionHeader
+        title="Carpetas"
+        description="Organiza las imágenes de este proyecto en un árbol de rutas."
+        actions={<Button onPress={() => openCreate(undefined)}>Nueva carpeta</Button>}
+      />
 
       <SectionIntro
         id="folders"
@@ -77,7 +77,7 @@ export function FoldersView({ projectId }: { projectId: string }) {
               className="flex items-center justify-between gap-3 border-b border-border px-4 py-3 last:border-b-0 hover:bg-surface-secondary"
             >
               <div className="flex min-w-0 items-center gap-2" style={{ paddingLeft: depth * 20 }}>
-                <FolderIcon />
+                <FolderIcon className="size-4 text-muted" />
                 <span className="truncate font-medium text-foreground">{folder.name}</span>
                 <code className="truncate text-xs text-muted">{folder.path}</code>
               </div>
@@ -128,13 +128,5 @@ export function FoldersView({ projectId }: { projectId: string }) {
         }
       />
     </div>
-  );
-}
-
-function FolderIcon() {
-  return (
-    <svg viewBox="0 0 24 24" className="size-4 shrink-0 text-muted" fill="none" stroke="currentColor" strokeWidth={2}>
-      <path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2Z" />
-    </svg>
   );
 }

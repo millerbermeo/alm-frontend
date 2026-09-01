@@ -10,6 +10,7 @@ import { LoadingState } from "@/components/ui/spinner";
 import { EmptyState } from "@/components/ui/empty-state";
 import { CursorPager } from "@/components/ui/cursor-pager";
 import { SectionIntro } from "@/components/ui/section-intro";
+import { SectionHeader } from "@/components/ui/section-header";
 import { toMessage } from "@/lib/errors";
 import { useFolders } from "@/features/folders/hooks";
 import { useImageKeyStatus, useImagesList } from "@/features/images/hooks";
@@ -67,21 +68,21 @@ function ImagesModule({ projectId }: { projectId: string }) {
   if (keyError) return <ImageKeySetup projectId={projectId} />;
 
   return (
-    <div className="space-y-4">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <h2 className="text-lg font-semibold text-foreground">Imágenes</h2>
-          <p className="text-sm text-muted">Sube, organiza y gestiona las imágenes de este proyecto.</p>
-        </div>
-        <div className="flex gap-2">
-          <Button variant="outline" onPress={() => setShowKey((v) => !v)}>
-            Clave de imagen
-          </Button>
-          <Button onPress={() => setShowUploader((v) => !v)}>
-            {showUploader ? "Ocultar carga" : "Subir"}
-          </Button>
-        </div>
-      </div>
+    <div className="space-y-6">
+      <SectionHeader
+        title="Imágenes"
+        description="Sube, organiza y gestiona las imágenes de este proyecto."
+        actions={
+          <>
+            <Button variant="outline" onPress={() => setShowKey((v) => !v)}>
+              Clave de imagen
+            </Button>
+            <Button onPress={() => setShowUploader((v) => !v)}>
+              {showUploader ? "Ocultar carga" : "Subir"}
+            </Button>
+          </>
+        }
+      />
 
       <SectionIntro
         id="images"

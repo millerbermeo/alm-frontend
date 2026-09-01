@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 
 import { IMAGE_STATUS } from "@/config/constants";
 import { SelectField } from "@/components/ui/select-field";
+import { TextField } from "@/components/ui/text-field";
 import { buildFolderTree, flattenTree } from "@/features/folders/tree";
 import type { Folder, ImageStatus } from "@/types/api";
 
@@ -57,23 +58,17 @@ export function ImageFilters({
 
   return (
     <div className="flex flex-wrap items-end gap-3">
-      <div className="flex w-56 flex-col gap-1.5">
-        <label htmlFor="img-search" className="text-sm font-medium text-foreground">
-          Buscar
-        </label>
-        <input
-          id="img-search"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          placeholder="Nombre de archivo o título"
-          className="h-9 rounded-field border border-field-border bg-field px-3 text-sm text-field-foreground focus-visible:outline-2 focus-visible:outline-focus"
-        />
-      </div>
+      <TextField
+        label="Buscar"
+        containerClassName="w-56"
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+        placeholder="Nombre de archivo o título"
+      />
 
       <SelectField
         label="Estado"
         containerClassName="w-44"
-        className="h-9"
         placeholder="Cualquier estado"
         value={value.status}
         onChange={(e) => onChange({ ...value, status: e.target.value as "" | ImageStatus })}
@@ -83,7 +78,6 @@ export function ImageFilters({
       <SelectField
         label="Formato"
         containerClassName="w-36"
-        className="h-9"
         placeholder="Cualquier formato"
         value={value.format}
         onChange={(e) => onChange({ ...value, format: e.target.value })}
@@ -93,7 +87,6 @@ export function ImageFilters({
       <SelectField
         label="Carpeta"
         containerClassName="w-48"
-        className="h-9"
         placeholder="Cualquier carpeta"
         value={value.folderId}
         onChange={(e) => onChange({ ...value, folderId: e.target.value })}
@@ -107,7 +100,7 @@ export function ImageFilters({
             setSearch("");
             onChange(EMPTY_FILTERS);
           }}
-          className="h-9 rounded-lg px-3 text-sm font-medium text-muted hover:text-foreground"
+          className="h-10 rounded-lg px-3 text-sm font-medium text-muted hover:text-foreground"
         >
           Limpiar
         </button>

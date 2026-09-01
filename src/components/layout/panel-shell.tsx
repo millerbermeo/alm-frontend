@@ -8,6 +8,14 @@ import { ROUTES } from "@/config/constants";
 import { cn } from "@/lib/utils/cn";
 import { useUiStore } from "@/lib/store/ui-store";
 import { Logo } from "@/components/ui/logo";
+import {
+  BoxIcon,
+  ChevronLeftIcon,
+  CloseIcon,
+  GearIcon,
+  GridIcon,
+  MenuIcon,
+} from "@/components/ui/icons";
 import { ThemeToggle } from "@/components/layout/theme-toggle";
 import { UserMenu } from "@/components/layout/user-menu";
 import type { UserView } from "@/types/api";
@@ -18,10 +26,24 @@ interface NavItem {
   icon: ReactNode;
 }
 
-const NAV: NavItem[] = [
-  { href: ROUTES.dashboard, label: "Panel", icon: <GridIcon /> },
-  { href: ROUTES.projects, label: "Proyectos", icon: <BoxIcon /> },
-  { href: ROUTES.settings, label: "Ajustes", icon: <GearIcon /> },
+interface NavGroup {
+  /** Shown as an uppercase caption above the group (hidden when collapsed). */
+  label: string;
+  items: NavItem[];
+}
+
+const NAV: NavGroup[] = [
+  {
+    label: "General",
+    items: [
+      { href: ROUTES.dashboard, label: "Panel", icon: <GridIcon /> },
+      { href: ROUTES.projects, label: "Proyectos", icon: <BoxIcon /> },
+    ],
+  },
+  {
+    label: "Cuenta",
+    items: [{ href: ROUTES.settings, label: "Ajustes", icon: <GearIcon /> }],
+  },
 ];
 
 function isActive(pathname: string, href: string): boolean {
@@ -39,6 +61,10 @@ export function PanelShell({ user, children }: { user: UserView; children: React
   const [mounted, setMounted] = useState(false);
   const [entered, setEntered] = useState(false);
 
+  // Mount as soon as the drawer is asked to open (adjusting state during
+  // render is the supported pattern; the exit is handled by the effect below).
+  if (drawerOpen && !mounted) setMounted(true);
+
   // Lock scroll and wire Escape while the mobile drawer is open. It closes on
   // navigation via the nav container's click handler below.
   useEffect(() => {
@@ -55,14 +81,38 @@ export function PanelShell({ user, children }: { user: UserView; children: React
   // Drive the enter/exit animation around the open intent.
   useEffect(() => {
     if (drawerOpen) {
-      setMounted(true);
       const id = requestAnimationFrame(() => setEntered(true));
       return () => cancelAnimationFrame(id);
     }
-    setEntered(false);
+    const id = requestAnimationFrame(() => setEntered(false));
     const t = setTimeout(() => setMounted(false), 300);
-    return () => clearTimeout(t);
+    return () => {
+      cancelAnimationFrame(id);
+      clearTimeout(t);
+    };
   }, [drawerOpen]);
+
+  const nav = (
+    <div className="flex-1 space-y-6 overflow-y-auto p-3">
+      {NAV.map((group) => (
+        <div key={group.label} className="space-y-1">
+          {!collapsed ? (
+            <p className="px-3 pb-1 text-xs font-semibold uppercase tracking-wide text-muted">
+              {group.label}
+            </p>
+          ) : null}
+          {group.items.map((item) => (
+            <NavLink
+              key={item.href}
+              item={item}
+              active={isActive(pathname, item.href)}
+              collapsed={collapsed}
+            />
+          ))}
+        </div>
+      ))}
+    </div>
+  );
 
   return (
     <div className="flex min-h-dvh bg-background">
@@ -85,16 +135,7 @@ export function PanelShell({ user, children }: { user: UserView; children: React
           </Link>
         </div>
 
-        <nav className="flex-1 space-y-1 overflow-y-auto p-3">
-          {NAV.map((item) => (
-            <NavLink
-              key={item.href}
-              item={item}
-              active={isActive(pathname, item.href)}
-              collapsed={collapsed}
-            />
-          ))}
-        </nav>
+        {nav}
 
         <div className="border-t border-border p-3">
           <button
@@ -107,7 +148,7 @@ export function PanelShell({ user, children }: { user: UserView; children: React
               collapsed && "justify-center px-0",
             )}
           >
-            <ChevronIcon className={cn("size-4 transition-transform", collapsed && "rotate-180")} />
+            <ChevronLeftIcon className={cn("size-4 transition-transform", collapsed && "rotate-180")} />
             {!collapsed && <span>Contraer</span>}
           </button>
         </div>
@@ -144,14 +185,9 @@ export function PanelShell({ user, children }: { user: UserView; children: React
                 <CloseIcon />
               </button>
             </div>
-            <nav
-              className="flex-1 space-y-1 overflow-y-auto p-3"
-              onClick={() => setDrawerOpen(false)}
-            >
-              {NAV.map((item) => (
-                <NavLink key={item.href} item={item} active={isActive(pathname, item.href)} />
-              ))}
-            </nav>
+            <div onClick={() => setDrawerOpen(false)} className="flex flex-1 flex-col overflow-hidden">
+              {nav}
+            </div>
             <div className="border-t border-border p-3">
               <ThemeToggle className="w-full justify-center" />
             </div>
@@ -210,65 +246,8 @@ function NavLink({
         collapsed && "justify-center px-0",
       )}
     >
-      <span className="shrink-0">{item.icon}</span>
+      <span className="grid size-5 shrink-0 place-items-center [&_svg]:size-5">{item.icon}</span>
       {!collapsed && <span className="truncate">{item.label}</span>}
     </Link>
-  );
-}
-
-/* ---- icons ----------------------------------------------------------------- */
-
-function GridIcon() {
-  return (
-    <svg viewBox="0 0 24 24" className="size-5" fill="none" stroke="currentColor" strokeWidth={2}>
-      <rect x="3" y="3" width="7" height="7" rx="1.5" />
-      <rect x="14" y="3" width="7" height="7" rx="1.5" />
-      <rect x="3" y="14" width="7" height="7" rx="1.5" />
-      <rect x="14" y="14" width="7" height="7" rx="1.5" />
-    </svg>
-  );
-}
-function BoxIcon() {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      className="size-5"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth={2}
-      strokeLinejoin="round"
-    >
-      <path d="M21 8 12 3 3 8v8l9 5 9-5Z" />
-      <path d="m3 8 9 5 9-5M12 13v8" />
-    </svg>
-  );
-}
-function GearIcon() {
-  return (
-    <svg viewBox="0 0 24 24" className="size-5" fill="none" stroke="currentColor" strokeWidth={2}>
-      <circle cx="12" cy="12" r="3" />
-      <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 8 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 3.6 15a1.65 1.65 0 0 0-1.51-1H2a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 3.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 8 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9c.2.62.78 1.02 1.42 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z" />
-    </svg>
-  );
-}
-function MenuIcon() {
-  return (
-    <svg viewBox="0 0 24 24" className="size-5" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round">
-      <path d="M4 6h16M4 12h16M4 18h16" />
-    </svg>
-  );
-}
-function CloseIcon() {
-  return (
-    <svg viewBox="0 0 24 24" className="size-5" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round">
-      <path d="M6 6l12 12M18 6 6 18" />
-    </svg>
-  );
-}
-function ChevronIcon({ className }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
-      <path d="m15 18-6-6 6-6" />
-    </svg>
   );
 }

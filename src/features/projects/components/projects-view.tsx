@@ -60,13 +60,13 @@ export function ProjectsView() {
         <span className="line-clamp-1 max-w-xs text-muted">{p.description ?? "—"}</span>
       ),
     },
-    { key: "created", header: "Creado", cell: (p) => formatDate(p.created_at) },
+    { key: "created", header: "Creado", numeric: true, cell: (p) => formatDate(p.created_at) },
     {
       key: "actions",
       header: "",
       align: "right",
       cell: (p) => (
-        <div className="flex justify-end gap-1.5" onClick={(e) => e.stopPropagation()}>
+        <div className="flex justify-end gap-1" onClick={(e) => e.stopPropagation()}>
           <Button size="sm" variant="ghost" onPress={() => router.push(ROUTES.projectApiKeys(p.id))}>
             Claves API
           </Button>
@@ -121,7 +121,6 @@ export function ProjectsView() {
       <div className="flex flex-wrap items-end gap-3">
         <SelectField
           label="Estado"
-          className="h-9"
           containerClassName="w-44"
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value as "" | ProjectStatus)}
