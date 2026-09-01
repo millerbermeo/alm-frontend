@@ -1,0 +1,93 @@
+@import "tailwindcss";
+/* HeroUI v3 — layered theme (base / components / theme / utilities). Must come
+   after tailwindcss. Provides the `dark` custom-variant (.dark / [data-theme]). */
+@import "@heroui/styles";
+
+/* ---------------------------------------------------------------------------
+   Panel design tokens.
+   We keep HeroUI's neutral surface/foreground scale and override only the
+   brand accent + a couple of ergonomics. Indigo primary reads as a technical,
+   trustworthy infrastructure product; status colors stay conventional.
+   --------------------------------------------------------------------------- */
+@layer theme {
+  :root,
+  .light,
+  [data-theme="light"] {
+    --accent: oklch(0.53 0.22 277);            /* indigo 600 */
+    --accent-hover: oklch(0.47 0.22 277);      /* indigo 700 */
+    --accent-foreground: oklch(0.99 0 0);
+    --accent-soft: oklch(0.95 0.03 277);
+    --accent-soft-foreground: oklch(0.42 0.2 277);
+    --accent-soft-hover: oklch(0.92 0.045 277);
+
+    --link: var(--accent);
+    --focus: var(--accent);
+    --radius: 0.625rem;
+  }
+
+  .dark,
+  [data-theme="dark"] {
+    --accent: oklch(0.66 0.17 274);            /* indigo 400 — lifts on dark */
+    --accent-hover: oklch(0.72 0.15 274);
+    --accent-foreground: oklch(0.16 0.02 274);
+    --accent-soft: oklch(0.28 0.07 274);
+    --accent-soft-foreground: oklch(0.86 0.06 274);
+    --accent-soft-hover: oklch(0.33 0.08 274);
+
+    --link: var(--accent);
+    --focus: var(--accent);
+  }
+}
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+    scrollbar-gutter: stable;
+  }
+
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family:
+      var(--font-geist-sans), ui-sans-serif, system-ui, -apple-system,
+      "Segoe UI", Roboto, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    /* Nothing in the panel should ever scroll the page sideways. */
+    overflow-x: hidden;
+  }
+
+  ::selection {
+    background-color: var(--color-accent-soft);
+    color: var(--color-accent-soft-foreground);
+  }
+
+  /* Consistent, visible focus ring for keyboard users across custom controls. */
+  :focus-visible {
+    outline: 2px solid var(--color-focus);
+    outline-offset: 2px;
+  }
+
+  /* Quieter, thinner scrollbars for the app chrome. */
+  @supports (scrollbar-width: thin) {
+    * {
+      scrollbar-width: thin;
+      scrollbar-color: color-mix(in oklab, currentColor 22%, transparent) transparent;
+    }
+  }
+}
+
+/* App-level utility: the panel content column. Fluid — fills the viewport
+   width the shell gives it — with gutters that open up on larger screens.
+   No max-width: dashboards, tables and image grids use the full width. */
+@utility container-page {
+  width: 100%;
+  margin-inline: auto;
+  padding-inline: clamp(1rem, 0.4rem + 2.2vw, 2.5rem);
+}
+
+/* Vertical rhythm for stacked page sections. */
+@utility page-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
