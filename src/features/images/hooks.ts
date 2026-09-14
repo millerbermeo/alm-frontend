@@ -46,12 +46,19 @@ export function useRemoveImageKey(projectId: string) {
   });
 }
 
+const PROCESSING_STATUSES = new Set(["PENDING", "PROCESSING"]);
+
 export function useImagesList(projectId: string, params: ImageListParams) {
   return useQuery({
     queryKey: queryKeys.images.list(projectId, params),
     queryFn: () => imagesApi.list(projectId, params),
     enabled: Boolean(projectId),
     placeholderData: keepPreviousData,
+    refetchInterval: (query) => {
+      const items = query.state.data?.items ?? [];
+      const isProcessing = items.some((image) => PROCESSING_STATUSES.has(image.status));
+      return isProcessing ? 2_000 : false;
+    },
   });
 }
 
@@ -60,6 +67,8 @@ export function useImage(projectId: string, id: string | null) {
     queryKey: queryKeys.images.detail(projectId, id ?? ""),
     queryFn: () => imagesApi.get(projectId, id as string),
     enabled: Boolean(projectId && id),
+    refetchInterval: (query) =>
+      query.state.data && PROCESSING_STATUSES.has(query.state.data.status) ? 2_000 : false,
   });
 }
 
