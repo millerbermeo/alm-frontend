@@ -8,6 +8,7 @@ import { queryKeys } from "@/lib/query/keys";
 import { toMessage } from "@/lib/errors";
 import { formatBytes } from "@/lib/utils/format";
 import { cn } from "@/lib/utils/cn";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { SelectField } from "@/components/ui/select-field";
 import { toast } from "@/components/ui/toast";
@@ -112,9 +113,11 @@ export function ImageUploader({
   }
 
   const pendingCount = items.filter((p) => p.status !== "done").length;
+  const totalBytes = items.reduce((sum, p) => sum + p.file.size, 0);
+  const doneCount = items.filter((p) => p.status === "done").length;
 
   return (
-    <div className="space-y-3 rounded-xl border border-border bg-surface p-4">
+    <div className="space-y-4 rounded-xl border border-border bg-surface p-4">
       <div
         onDragOver={(e) => {
           e.preventDefault();
@@ -128,12 +131,25 @@ export function ImageUploader({
         }}
         onClick={() => inputRef.current?.click()}
         className={cn(
-          "flex cursor-pointer flex-col items-center justify-center gap-1 rounded-lg border-2 border-dashed p-6 text-center text-sm transition-colors",
-          dragOver ? "border-accent bg-accent-soft/40" : "border-border hover:bg-surface-secondary",
+          "flex cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed p-10 text-center transition-colors",
+          dragOver
+            ? "border-accent bg-accent-soft/40"
+            : "border-border hover:border-accent/50 hover:bg-surface-secondary",
         )}
       >
-        <span className="font-medium text-foreground">Arrastra imágenes aquí o haz clic para elegir</span>
-        <span className="text-xs text-muted">JPEG, PNG, WebP, GIF · hasta el límite del proyecto</span>
+        <div
+          className={cn(
+            "grid size-11 place-items-center rounded-full transition-colors",
+            dragOver ? "bg-accent text-white" : "bg-accent-soft text-accent-soft-foreground",
+          )}
+        >
+          <IconUploadCloud className="size-5" />
+        </div>
+        <p className="text-sm font-medium text-foreground">
+          Arrastra imágenes aquí o{" "}
+          <span className="text-accent underline-offset-2 group-hover:underline">haz clic para elegir</span>
+        </p>
+        <p className="text-xs text-muted">JPEG, PNG, WebP, GIF · hasta el límite del proyecto</p>
         <input
           ref={inputRef}
           type="file"
@@ -146,65 +162,101 @@ export function ImageUploader({
 
       {items.length > 0 ? (
         <>
-          <div className="flex flex-wrap items-end gap-3">
-            <SelectField
-              label="Visibilidad"
-              containerClassName="w-40"
-              className="h-9"
-              value={visibility}
-              onChange={(e) => setVisibility(e.target.value as ImageVisibility)}
-              options={IMAGE_VISIBILITY.map((v) => ({
-                value: v,
-                label: VISIBILITY_LABEL[v],
-              }))}
-            />
-            <SelectField
-              label="Carpeta"
-              containerClassName="w-48"
-              className="h-9"
-              placeholder="Sin carpeta"
-              value={folderId}
-              onChange={(e) => setFolderId(e.target.value)}
-              options={folderOptions}
-            />
-            <Button onPress={uploadAll} isLoading={running} isDisabled={pendingCount === 0}>
-              Subir {pendingCount || ""}
-            </Button>
+          <div className="flex flex-wrap items-end justify-between gap-3 rounded-lg bg-surface-secondary/60 p-3">
+            <div className="flex flex-wrap items-end gap-3">
+              <SelectField
+                label="Visibilidad"
+                containerClassName="w-40"
+                className="h-9 bg-surface"
+                value={visibility}
+                onChange={(e) => setVisibility(e.target.value as ImageVisibility)}
+                options={IMAGE_VISIBILITY.map((v) => ({
+                  value: v,
+                  label: VISIBILITY_LABEL[v],
+                }))}
+              />
+              <SelectField
+                label="Carpeta"
+                containerClassName="w-48"
+                className="h-9 bg-surface"
+                placeholder="Sin carpeta"
+                value={folderId}
+                onChange={(e) => setFolderId(e.target.value)}
+                options={folderOptions}
+              />
+            </div>
+            <div className="flex items-center gap-3">
+              <p className="text-xs text-muted">
+                {items.length} {items.length === 1 ? "archivo" : "archivos"} · {formatBytes(totalBytes)}
+                {doneCount > 0 ? ` · ${doneCount} subido${doneCount === 1 ? "" : "s"}` : ""}
+              </p>
+              <Button onPress={uploadAll} isLoading={running} isDisabled={pendingCount === 0}>
+                Subir {pendingCount || ""}
+              </Button>
+            </div>
           </div>
 
           <ul className="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-6">
             {items.map((item) => (
-              <li key={item.id} className="overflow-hidden rounded-lg border border-border">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={item.preview}
-                  alt=""
-                  className="aspect-square w-full object-cover"
-                />
-                <div className="space-y-1 p-2 text-xs">
-                  <p className="truncate font-medium text-foreground">{item.file.name}</p>
-                  <p className="text-muted">{formatBytes(item.file.size)}</p>
-                  {item.status === "uploading" ? (
-                    <div className="h-1 overflow-hidden rounded bg-surface-secondary">
-                      <div
-                        className="h-full bg-accent transition-[width]"
-                        style={{ width: `${item.progress}%` }}
-                      />
-                    </div>
-                  ) : item.status === "done" ? (
-                    <p className="font-medium text-success">Hecho</p>
-                  ) : item.status === "error" ? (
-                    <p className="truncate font-medium text-danger" title={item.error}>
-                      {item.error}
-                    </p>
-                  ) : (
+              <li
+                key={item.id}
+                className="group relative overflow-hidden rounded-lg border border-border bg-surface-secondary"
+              >
+                <div className="relative aspect-square w-full">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={item.preview} alt="" className="size-full object-cover" />
+
+                  {item.status === "idle" ? (
                     <button
                       type="button"
                       onClick={() => removeItem(item.id)}
-                      className="font-medium text-muted hover:text-danger"
+                      aria-label={`Quitar ${item.file.name}`}
+                      className="absolute right-1.5 top-1.5 grid size-6 place-items-center rounded-full bg-black/60 text-white opacity-0 backdrop-blur-sm transition-opacity group-hover:opacity-100"
                     >
-                      Quitar
+                      <IconX className="size-3.5" />
                     </button>
+                  ) : null}
+
+                  {item.status === "done" ? (
+                    <span className="absolute right-1.5 top-1.5 grid size-6 place-items-center rounded-full bg-success text-white">
+                      <IconCheck className="size-3.5" />
+                    </span>
+                  ) : null}
+
+                  {item.status === "error" ? (
+                    <span className="absolute right-1.5 top-1.5 grid size-6 place-items-center rounded-full bg-danger text-white">
+                      <IconAlert className="size-3.5" />
+                    </span>
+                  ) : null}
+
+                  {item.status === "uploading" ? (
+                    <div className="absolute inset-x-0 bottom-0 bg-black/55 px-2 py-1.5 backdrop-blur-sm">
+                      <div className="mb-1 flex items-center justify-between text-[10px] font-medium text-white">
+                        <span>Subiendo…</span>
+                        <span>{item.progress}%</span>
+                      </div>
+                      <div className="h-1 overflow-hidden rounded-full bg-white/25">
+                        <div
+                          className="h-full rounded-full bg-white transition-[width]"
+                          style={{ width: `${item.progress}%` }}
+                        />
+                      </div>
+                    </div>
+                  ) : null}
+                </div>
+
+                <div className="space-y-1 p-2 text-xs">
+                  <p className="truncate font-medium text-foreground" title={item.file.name}>
+                    {item.file.name}
+                  </p>
+                  {item.status === "error" ? (
+                    <span title={item.error} className="block max-w-full">
+                      <Badge tone="danger" className="max-w-full truncate">
+                        {item.error}
+                      </Badge>
+                    </span>
+                  ) : (
+                    <p className="text-muted">{formatBytes(item.file.size)}</p>
                   )}
                 </div>
               </li>
@@ -213,5 +265,47 @@ export function ImageUploader({
         </>
       ) : null}
     </div>
+  );
+}
+
+function IconUploadCloud({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className={className}>
+      <path
+        d="M7 18a4.5 4.5 0 0 1-.5-8.975A5.5 5.5 0 0 1 17.34 7.02 4 4 0 0 1 17 15h-1"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path d="M12 12v9m0-9 3 3m-3-3-3 3" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+function IconX({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} className={className}>
+      <path d="m6 6 12 12M18 6 6 18" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+function IconCheck({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} className={className}>
+      <path d="m5 13 4 4L19 7" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+function IconAlert({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} className={className}>
+      <path d="M12 8v5" strokeLinecap="round" />
+      <path d="M12 16.5v.01" strokeLinecap="round" />
+      <path
+        d="M10.29 3.86 1.82 18a1 1 0 0 0 .87 1.5h18.62a1 1 0 0 0 .87-1.5L13.71 3.86a1 1 0 0 0-1.72 0Z"
+        strokeLinejoin="round"
+      />
+    </svg>
   );
 }

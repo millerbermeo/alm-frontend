@@ -5,12 +5,13 @@ import { Dialog, Modal as RACModal, ModalOverlay } from "react-aria-components";
 
 import { cn } from "@/lib/utils/cn";
 
-type Size = "sm" | "md" | "lg";
+type Size = "sm" | "md" | "lg" | "xl";
 
 const SIZE: Record<Size, string> = {
   sm: "max-w-sm",
   md: "max-w-lg",
   lg: "max-w-2xl",
+  xl: "max-w-4xl",
 };
 
 export interface ModalProps {

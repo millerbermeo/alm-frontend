@@ -43,7 +43,7 @@ export function ImageDetailDrawer({ projectId, imageId, folders, onClose }: Prop
       isOpen={Boolean(imageId)}
       onOpenChange={(open) => !open && onClose()}
       title={image ? image.original_filename : "Imagen"}
-      size="lg"
+      size="xl"
       isDismissable={!update.isPending && !del.isPending}
     >
       {isLoading || !image ? (
@@ -98,12 +98,12 @@ function Preview({ image }: { image: ImageView }) {
   const url = image.variants.medium ?? image.variants.large ?? image.url ?? image.variants.small;
   return (
     <div className="space-y-2">
-      <div className="overflow-hidden rounded-xl border border-border bg-surface-secondary">
+      <div className="flex h-64 items-center justify-center overflow-hidden rounded-xl border border-border bg-surface-secondary sm:h-80 lg:h-[26rem]">
         {url ? (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={url} alt={image.alt_text ?? ""} className="max-h-80 w-full object-contain" />
+          <img src={url} alt={image.alt_text ?? ""} className="size-full object-contain" />
         ) : (
-          <div className="grid h-48 place-items-center text-sm text-muted">Sin vista previa</div>
+          <div className="grid size-full place-items-center text-sm text-muted">Sin vista previa</div>
         )}
       </div>
       <dl className="grid grid-cols-2 gap-x-4 gap-y-1 text-xs text-muted">
@@ -236,19 +236,18 @@ function Variants({ image }: { image: ImageView }) {
       <p className="text-sm font-medium text-foreground">URLs</p>
       <ul className="divide-y divide-border rounded-lg border border-border">
         {entries.map(([name, url]) => (
-          <li key={name} className="flex items-center justify-between gap-2 px-3 py-2 text-xs">
-            <span className="font-medium capitalize text-foreground">{name}</span>
-            <span className="flex items-center gap-1.5">
-              <a
-                href={url}
-                target="_blank"
-                rel="noreferrer"
-                className="max-w-[16rem] truncate text-accent hover:underline"
-              >
-                {url}
-              </a>
-              <CopyButton value={url} label="Copiar" />
-            </span>
+          <li key={name} className="flex items-center gap-3 px-3 py-2 text-xs">
+            <span className="w-20 shrink-0 font-medium capitalize text-foreground">{name}</span>
+            <a
+              href={url}
+              target="_blank"
+              rel="noreferrer"
+              className="min-w-0 flex-1 truncate text-accent hover:underline"
+              title={url}
+            >
+              {url}
+            </a>
+            <CopyButton value={url} label="Copiar" />
           </li>
         ))}
       </ul>
