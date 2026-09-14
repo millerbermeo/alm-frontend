@@ -54,6 +54,8 @@ function isRawBody(body: unknown): body is BodyInit {
 const MAX_429_RETRIES = 2;
 /** Upper bound on how long we'll honour a `Retry-After` before a retry (ms). */
 const MAX_RETRY_WAIT_MS = 3_000;
+/** Max automatic retries on a transient network failure (blip, backend restart). */
+const MAX_NETWORK_RETRIES = 2;
 
 const sleep = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
 
@@ -61,6 +63,7 @@ async function doFetch(
   req: RustRequest,
   accessToken?: string,
   attempt = 0,
+  networkAttempt = 0,
 ): Promise<RustResponse> {
   const headers = new Headers(req.headers);
   if (accessToken) headers.set("authorization", `Bearer ${accessToken}`);
@@ -85,6 +88,13 @@ async function doFetch(
       signal: req.signal,
     });
   } catch {
+    // Transient network failure (Wi-Fi drop, backend mid-restart): retry a
+    // couple times with backoff before giving up — a blip must not read as
+    // "session dead" to the caller.
+    if (networkAttempt < MAX_NETWORK_RETRIES && !req.signal?.aborted) {
+      await sleep(300 * 2 ** networkAttempt);
+      return doFetch(req, accessToken, attempt, networkAttempt + 1);
+    }
     throw new ApiError({
       status: 502,
       code: "BACKEND_UNREACHABLE",
@@ -103,7 +113,7 @@ async function doFetch(
       MAX_RETRY_WAIT_MS,
     );
     await sleep(waitMs);
-    return doFetch(req, accessToken, attempt + 1);
+    return doFetch(req, accessToken, attempt + 1, networkAttempt);
   }
 
   const contentType = res.headers.get("content-type") ?? "";

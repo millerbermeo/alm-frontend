@@ -14,10 +14,10 @@ export const COOKIE = {
   imageKeys: "is_ik",
 } as const;
 
-/** Access-token cookie lifetime (s). The Rust access token lives 15 min. */
-export const ACCESS_COOKIE_MAX_AGE = 15 * 60;
-/** Refresh-token cookie lifetime (s). The Rust refresh token lives 14 days. */
-export const REFRESH_COOKIE_MAX_AGE = 14 * 24 * 60 * 60;
+/** Access-token cookie lifetime (s). The Rust access token lives 2 hours. */
+export const ACCESS_COOKIE_MAX_AGE = 2 * 60 * 60;
+/** Refresh-token cookie lifetime (s). The Rust refresh token lives 60 days. */
+export const REFRESH_COOKIE_MAX_AGE = 60 * 24 * 60 * 60;
 
 /** Cursor-paginated list page size used across the panel. */
 export const DEFAULT_PAGE_SIZE = 20;

@@ -9,11 +9,18 @@ function makeQueryClient(): QueryClient {
         staleTime: 30_000,
         gcTime: 5 * 60_000,
         retry: (failureCount, error) => {
-          // Never retry auth / client errors; retry transient server errors once.
-          if (error instanceof ApiError && error.status < 500) return false;
+          // Transient failures (network blip, BFF/backend unreachable) get a
+          // few retries with backoff — a dropped connection must not read as
+          // "session dead". Real auth/validation errors (401/403/4xx) never retry.
+          if (error instanceof ApiError) {
+            const isTransient = error.status === 0 || error.status >= 500;
+            return isTransient && failureCount < 3;
+          }
           return failureCount < 1;
         },
+        retryDelay: (attempt) => Math.min(500 * 2 ** attempt, 5_000),
         refetchOnWindowFocus: false,
+        refetchOnReconnect: true,
       },
       mutations: {
         retry: false,
