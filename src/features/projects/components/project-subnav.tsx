@@ -19,7 +19,10 @@ export function ProjectSubnav({ projectId }: { projectId: string }) {
   return (
     <nav className="flex gap-1 border-b border-border">
       {tabs.map((t) => {
-        const active = t.exact ? pathname === t.href : pathname.startsWith(t.href);
+        // `pathname` never includes the query string, but our hrefs carry
+        // `?id=` — compare against the path portion only.
+        const hrefPath = t.href.split("?")[0] ?? t.href;
+        const active = t.exact ? pathname === hrefPath : pathname.startsWith(hrefPath);
         return (
           <Link
             key={t.href}

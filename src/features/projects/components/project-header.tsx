@@ -1,9 +1,10 @@
 "use client";
 
+import { useEffect } from "react";
 import Link from "next/link";
 import { Skeleton } from "@heroui/react";
 
-import { ROUTES } from "@/config/constants";
+import { APP_NAME, ROUTES } from "@/config/constants";
 import { typo } from "@/lib/ui/typography";
 import { ProjectStatusBadge } from "@/components/ui/status-badge";
 import { Alert } from "@/components/ui/alert";
@@ -11,9 +12,15 @@ import { toMessage } from "@/lib/errors";
 import { useProject } from "@/features/projects/hooks";
 import { ProjectSubnav } from "@/features/projects/components/project-subnav";
 
-/** Breadcrumb + title + status shown on every `/projects/[id]/*` page. */
+/** Breadcrumb + title + status shown on every `/projects/detail/*` page. */
 export function ProjectHeader({ projectId }: { projectId: string }) {
   const { data: project, isLoading, error } = useProject(projectId);
+
+  // Static export can't generate a per-project <title> at build time —
+  // set it client-side once the project is known.
+  useEffect(() => {
+    document.title = project ? `${project.name} · ${APP_NAME}` : APP_NAME;
+  }, [project]);
 
   // Fixed-height skeleton so switching tabs never shifts the page below.
   if (isLoading) {

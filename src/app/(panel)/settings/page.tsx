@@ -1,16 +1,21 @@
-import type { Metadata } from "next";
+"use client";
 
-import { getCurrentUser } from "@/lib/server/auth";
+import { useEffect } from "react";
+
+import { APP_NAME } from "@/config/constants";
+import { useSession } from "@/features/auth/hooks";
 import { formatDateTime } from "@/lib/utils/format";
 import { PageHeader } from "@/components/layout/page-header";
 import { Card, CardBody, CardHeader, CardTitle } from "@/components/ui/card";
 import { RoleBadge } from "@/components/ui/role-badge";
 import { ThemeToggle } from "@/components/layout/theme-toggle";
 
-export const metadata: Metadata = { title: "Ajustes" };
+export default function SettingsPage() {
+  useEffect(() => {
+    document.title = `Ajustes · ${APP_NAME}`;
+  }, []);
 
-export default async function SettingsPage() {
-  const user = await getCurrentUser();
+  const { data: user } = useSession();
   if (!user) return null;
 
   return (

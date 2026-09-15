@@ -1,14 +1,12 @@
-import "server-only";
-
 import { env } from "@/config/env";
 import type { Health, Readiness } from "@/types/api";
 
-async function getJson<T>(path: string): Promise<T | null> {
+async function getJson<T extends { status: string }>(path: string): Promise<T | null> {
   try {
-    const res = await fetch(new URL(path, env.RUST_API_URL), { cache: "no-store" });
+    const res = await fetch(`${env.NEXT_PUBLIC_API_URL}${path}`, { cache: "no-store" });
     if (!res.ok && res.status !== 503) return null;
-    const body = await res.json().catch(() => null);
-    return (body?.status ? body : null) as T | null;
+    const body = (await res.json().catch(() => null)) as (T & { status?: string }) | null;
+    return body?.status ? (body as T) : null;
   } catch {
     return null;
   }

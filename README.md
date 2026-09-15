@@ -29,8 +29,35 @@ To learn more about Next.js, take a look at the following resources:
 
 You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
 
-## Deploy on Vercel
+## Deploy
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Static export — served by Nginx, no Node.js at runtime. `pnpm build` reads
+`.env.production` (`NEXT_PUBLIC_API_URL=https://apis3.millerrivera.com`) and
+writes the site to `out/`.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```bash
+pnpm build
+# upload out/ to the server, e.g.:
+rsync -avz --delete out/ user@host:/var/www/apps/web/frontend_s3/out/
+```
+
+Nginx (root points at `out/`; `trailingSlash: true` means every route is a
+folder with its own `index.html`, so no per-route rewrite is needed):
+
+```nginx
+server {
+  listen 80;
+  server_name panel.example.com;
+
+  root /var/www/apps/web/frontend_s3/out;
+
+  location / {
+    try_files $uri $uri/ =404;
+  }
+
+  error_page 404 /404.html;
+  location = /404.html {
+    internal;
+  }
+}
+```

@@ -1,12 +1,28 @@
-import type { ReactNode } from "react";
-import { redirect } from "next/navigation";
+"use client";
+
+import { useEffect, type ReactNode } from "react";
+import { useRouter } from "next/navigation";
 
 import { ROUTES } from "@/config/constants";
-import { getCurrentUser } from "@/lib/server/auth";
+import { useSession } from "@/features/auth/hooks";
 import { Logo } from "@/components/ui/logo";
+import { LoadingState } from "@/components/ui/spinner";
 
-export default async function AuthLayout({ children }: { children: ReactNode }) {
-  if (await getCurrentUser()) redirect(ROUTES.dashboard);
+export default function AuthLayout({ children }: { children: ReactNode }) {
+  const router = useRouter();
+  const { data: user, isLoading } = useSession();
+
+  useEffect(() => {
+    if (user) router.replace(ROUTES.dashboard);
+  }, [user, router]);
+
+  if (isLoading || user) {
+    return (
+      <div className="grid min-h-dvh place-items-center">
+        <LoadingState label="Cargando…" />
+      </div>
+    );
+  }
 
   return (
     <div className="grid min-h-dvh lg:grid-cols-[1.1fr_1fr] xl:grid-cols-2">

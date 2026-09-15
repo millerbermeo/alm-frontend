@@ -1,29 +1,36 @@
-import type { Metadata } from "next";
-import type { ReactNode } from "react";
+"use client";
+
+import { useEffect, type ReactNode } from "react";
 import Link from "next/link";
 
-import { ROUTES } from "@/config/constants";
-import { getCurrentUser } from "@/lib/server/auth";
-import { getBackendStatus } from "@/lib/server/health";
+import { APP_NAME, ROUTES } from "@/config/constants";
+import { useSession } from "@/features/auth/hooks";
+import { useBackendStatus } from "@/features/health/hooks";
 import { PageHeader } from "@/components/layout/page-header";
 import { Card, CardBody, CardHeader, CardTitle } from "@/components/ui/card";
 import { StatCard } from "@/components/ui/stat-card";
 import { RoleBadge } from "@/components/ui/role-badge";
 import { ArrowRightIcon, BoxIcon, GearIcon, KeyIcon } from "@/components/ui/icons";
 
-export const metadata: Metadata = { title: "Panel" };
+export default function DashboardPage() {
+  useEffect(() => {
+    document.title = `Panel · ${APP_NAME}`;
+  }, []);
 
-export default async function DashboardPage() {
-  const [user, status] = await Promise.all([getCurrentUser(), getBackendStatus()]);
+  const { data: user } = useSession();
+  const { data: status } = useBackendStatus();
+  const reachable = status?.reachable ?? false;
+  const readiness = status?.readiness ?? null;
+  const health = status?.health ?? null;
 
   const upDown = (v: string) => (v === "up" ? "activo" : v === "down" ? "caído" : v);
   const services: { label: string; value: string; ok: boolean }[] = [
-    { label: "API", value: status.reachable ? "Accesible" : "Inaccesible", ok: status.reachable },
-    ...(status.readiness
+    { label: "API", value: reachable ? "Accesible" : "Inaccesible", ok: reachable },
+    ...(readiness
       ? [
-          { label: "Base de datos", value: upDown(status.readiness.database), ok: status.readiness.database === "up" },
-          { label: "Redis", value: upDown(status.readiness.redis), ok: status.readiness.redis === "up" },
-          { label: "Almacenamiento", value: upDown(status.readiness.storage), ok: status.readiness.storage === "up" },
+          { label: "Base de datos", value: upDown(readiness.database), ok: readiness.database === "up" },
+          { label: "Redis", value: upDown(readiness.redis), ok: readiness.redis === "up" },
+          { label: "Almacenamiento", value: upDown(readiness.storage), ok: readiness.storage === "up" },
         ]
       : []),
   ];
@@ -75,9 +82,9 @@ export default async function DashboardPage() {
         <Card className="lg:col-span-2">
           <CardHeader>
             <CardTitle>Servidor</CardTitle>
-            {status.health ? (
+            {health ? (
               <span className="text-xs text-muted">
-                v{status.health.version} · activo {Math.floor(status.health.uptime_seconds / 60)} min
+                v{health.version} · activo {Math.floor(health.uptime_seconds / 60)} min
               </span>
             ) : null}
           </CardHeader>
@@ -147,4 +154,3 @@ function QuickLink({
     </Link>
   );
 }
-

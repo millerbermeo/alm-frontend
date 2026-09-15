@@ -30,7 +30,8 @@ const PANEL_PERMS: ImagePermission[] = [
 /**
  * The `/images` endpoints authenticate with a project API key, not the panel
  * JWT. This gates the Images module: the admin either creates a key here or
- * pastes one, and the BFF keeps it encrypted server-side.
+ * pastes one, stored in this browser's `localStorage` (static export — no
+ * server to keep it encrypted).
  */
 export function ImageKeySetup({ projectId }: { projectId: string }) {
   const status = useImageKeyStatus(projectId);
@@ -71,7 +72,7 @@ export function ImageKeySetup({ projectId }: { projectId: string }) {
             <span className="font-medium text-foreground">
               {status.data.name ?? "una clave guardada"}
             </span>{" "}
-            para gestionar las imágenes de este proyecto. El secreto está cifrado y nunca se envía a tu
+            para gestionar las imágenes de este proyecto. El secreto se guarda solo en este
             navegador.
           </p>
           <div className="flex gap-2">

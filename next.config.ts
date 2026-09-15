@@ -1,29 +1,18 @@
 import type { NextConfig } from "next";
 
 /**
- * The panel talks to the Rust backend only through server-side Route Handlers
- * (`/src/app/api/**`) and the `proxy` (`/src/proxy.ts`). The browser never
- * calls the Rust API directly, so no `NEXT_PUBLIC_*` API URL is exposed.
- *
- * `images.remotePatterns` allows `next/image` to optimise the PUBLIC image
- * URLs the backend returns (S3 / MinIO / CDN origin), configured via
- * `IMAGE_CDN_HOSTNAME`.
+ * Static export — served by Nginx, no Node.js at runtime. The browser calls
+ * the Rust backend directly via `NEXT_PUBLIC_API_URL` (see `src/config/env.ts`);
+ * there is no BFF layer, no Route Handlers, no proxy.
  */
-const imageHost = process.env.IMAGE_CDN_HOSTNAME;
-
 const nextConfig: NextConfig = {
+  output: "export",
+  trailingSlash: true,
   reactStrictMode: true,
   poweredByHeader: false,
   images: {
-    remotePatterns: imageHost
-      ? [
-          { protocol: "https", hostname: imageHost },
-          { protocol: "http", hostname: imageHost },
-        ]
-      : [
-          { protocol: "http", hostname: "localhost" },
-          { protocol: "http", hostname: "127.0.0.1" },
-        ],
+    // No server to run the optimizer in a static export.
+    unoptimized: true,
   },
 };
 

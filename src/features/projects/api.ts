@@ -12,15 +12,13 @@ export interface ProjectListParams {
 }
 
 export const projectsApi = {
-  list: (params: ProjectListParams = {}) =>
-    apiGet<Page<Project>>("/proxy/projects", { params }),
+  list: (params: ProjectListParams = {}) => apiGet<Page<Project>>("/projects", { params }),
 
-  get: (id: string) => apiGet<Project>(`/proxy/projects/${id}`),
+  get: (id: string) => apiGet<Project>(`/projects/${id}`),
 
-  create: (body: CreateProjectBody) => apiPost<Project>("/proxy/projects", body),
+  create: (body: CreateProjectBody) => apiPost<Project>("/projects", body),
 
-  update: (id: string, body: UpdateProjectBody) =>
-    apiPatch<Project>(`/proxy/projects/${id}`, body),
+  update: (id: string, body: UpdateProjectBody) => apiPatch<Project>(`/projects/${id}`, body),
 
-  remove: (id: string) => apiDelete(`/proxy/projects/${id}`),
+  remove: (id: string) => apiDelete(`/projects/${id}`),
 };

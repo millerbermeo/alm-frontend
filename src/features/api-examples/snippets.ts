@@ -3,8 +3,9 @@
  *
  * These target the Rust API **directly** — the shape an external client
  * (Postman, a script, another backend) uses with a per-project image API key.
- * The panel's own BFF (`/api/images/**`) is session-cookie based and not what
- * you paste into Postman, so it is intentionally not covered here.
+ * The panel itself now also calls this surface directly (static export, no
+ * BFF), but with its own key lookup/error handling — not what you'd paste
+ * into Postman, so it is intentionally not covered here.
  */
 
 export interface SnippetConfig {

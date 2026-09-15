@@ -32,6 +32,12 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+# no secrets in here — just API origins per environment. Next.js loads
+# `.env.local` with higher priority than `.env.production`/`.env.development`
+# (except under NODE_ENV=test), so a stray `.env.local` on a build/deploy
+# machine would silently override these — keep the real values here instead.
+!.env.production
+!.env.development
 
 # vercel
 .vercel

@@ -3,13 +3,13 @@ import type { CreateFolderBody, Folder, UpdateFolderBody } from "@/types/api";
 
 export const foldersApi = {
   listByProject: (projectId: string, parentId?: string) =>
-    apiGet<Folder[]>("/proxy/folders", {
+    apiGet<Folder[]>("/folders", {
       params: { project_id: projectId, ...(parentId ? { parent_id: parentId } : {}) },
     }),
 
-  create: (body: CreateFolderBody) => apiPost<Folder>("/proxy/folders", body),
+  create: (body: CreateFolderBody) => apiPost<Folder>("/folders", body),
 
-  rename: (id: string, body: UpdateFolderBody) => apiPatch<Folder>(`/proxy/folders/${id}`, body),
+  rename: (id: string, body: UpdateFolderBody) => apiPatch<Folder>(`/folders/${id}`, body),
 
-  remove: (id: string) => apiDelete(`/proxy/folders/${id}`),
+  remove: (id: string) => apiDelete(`/folders/${id}`),
 };
