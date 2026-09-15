@@ -13,6 +13,7 @@ export function ProjectSubnav({ projectId }: { projectId: string }) {
     { href: ROUTES.projectApiKeys(projectId), label: "Claves API" },
     { href: ROUTES.projectFolders(projectId), label: "Carpetas" },
     { href: ROUTES.projectImages(projectId), label: "Imágenes" },
+    { href: ROUTES.projectExplorer(projectId), label: "Explorador" },
     { href: ROUTES.projectApiExamples(projectId), label: "Ejemplos cURL" },
   ];
 

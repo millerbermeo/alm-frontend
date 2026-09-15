@@ -33,15 +33,18 @@ interface Pending {
 export function ImageUploader({
   projectId,
   folders,
+  defaultFolderId,
 }: {
   projectId: string;
   folders: Folder[];
+  /** Pre-select a folder (e.g. the one currently open in the explorer). */
+  defaultFolderId?: string;
 }) {
   const qc = useQueryClient();
   const inputRef = useRef<HTMLInputElement>(null);
   const [items, setItems] = useState<Pending[]>([]);
   const [visibility, setVisibility] = useState<ImageVisibility>("PRIVATE");
-  const [folderId, setFolderId] = useState("");
+  const [folderId, setFolderId] = useState(defaultFolderId ?? "");
   const [dragOver, setDragOver] = useState(false);
   const [running, setRunning] = useState(false);
 

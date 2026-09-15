@@ -44,6 +44,7 @@ export const ROUTES = {
   projectApiKeys: (id: string) => `/projects/detail/api-keys?id=${id}`,
   projectFolders: (id: string) => `/projects/detail/folders?id=${id}`,
   projectImages: (id: string) => `/projects/detail/images?id=${id}`,
+  projectExplorer: (id: string) => `/projects/detail/explorer?id=${id}`,
   projectApiExamples: (id: string) => `/projects/detail/api-examples?id=${id}`,
   settings: "/settings",
 } as const;

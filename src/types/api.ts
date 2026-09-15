@@ -174,6 +174,8 @@ export interface ImageListParams {
   cursor?: string;
   limit?: number;
   folder_id?: string;
+  /** Only images with no folder (project root). Takes precedence over `folder_id`. */
+  root_only?: boolean;
   status?: ImageStatus;
   format?: string;
   search?: string;
