@@ -30,6 +30,7 @@ export function CurlExamplesView({
     apiKey: "",
     imageId: "",
     folderId: "",
+    folderPath: "",
     filePath: "./imagen.jpg",
     visibility: "PUBLIC",
     limit: 20,
@@ -54,6 +55,7 @@ export function CurlExamplesView({
         points={[
           "Van directos a la API Rust (`/api/v1/images`), no al panel. Autentican con una clave del proyecto.",
           "Crea o copia una clave `img_live_…` / `img_test_…` en la pestaña Claves API.",
+          "Para carpetas dinámicas, sube con `folder_path` (p. ej. `users/id_123`) — crea la jerarquía que falte, sin pedirla de antemano.",
           "Rellena los campos de abajo — los comandos se regeneran solos. Usa el botón Copiar de cada tarjeta.",
           "En Postman: Import > Raw text y pega el comando cURL completo.",
         ]}
@@ -92,6 +94,13 @@ export function CurlExamplesView({
           value={config.folderId}
           onChange={(e) => set("folderId", e.target.value)}
           placeholder="dejar vacío = raíz"
+        />
+        <TextField
+          label="Ruta de carpeta dinámica (opcional)"
+          value={config.folderPath}
+          onChange={(e) => set("folderPath", e.target.value)}
+          placeholder="users/id_123"
+          description="Crea la jerarquía si no existe (como mkdir -p). Excluyente con ID de carpeta."
         />
         <TextField
           label="Ruta del archivo a subir"

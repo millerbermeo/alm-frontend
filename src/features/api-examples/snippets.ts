@@ -17,6 +17,12 @@ export interface SnippetConfig {
   imageId: string;
   /** Optional folder id for upload / update. */
   folderId: string;
+  /**
+   * Optional slash-separated folder path for upload (e.g. `users/id_123`).
+   * Missing segments are created automatically. Mutually exclusive with
+   * `folderId` — the backend rejects a request that sets both.
+   */
+  folderPath: string;
   /** Local file to upload. */
   filePath: string;
   /** `PUBLIC` | `PRIVATE`. */
@@ -53,6 +59,7 @@ export function buildSnippets(config: SnippetConfig): Snippet[] {
   const key = config.apiKey.trim() || KEY_PLACEHOLDER;
   const imageId = config.imageId.trim() || ID_PLACEHOLDER;
   const folderId = config.folderId.trim();
+  const folderPath = config.folderPath.trim();
   const file = config.filePath.trim() || "./imagen.jpg";
   const visibility = config.visibility || "PUBLIC";
   const auth = `-H "Authorization: Bearer ${key}"`;
@@ -62,13 +69,25 @@ export function buildSnippets(config: SnippetConfig): Snippet[] {
   if (config.search.trim()) listQuery.set("search", config.search.trim());
   const listQs = listQuery.toString();
 
+  // `folder_id` and `folder_path` are mutually exclusive — the backend 400s
+  // if both are set, so prefer `folder_path` when the user filled both.
   const uploadLines = [
     `curl -X POST "${base}/images"`,
     auth,
     `-F "file=@${file}"`,
     `-F "visibility=${visibility}"`,
   ];
-  if (folderId) uploadLines.push(`-F "folder_id=${folderId}"`);
+  if (folderPath) uploadLines.push(`-F "folder_path=${folderPath}"`);
+  else if (folderId) uploadLines.push(`-F "folder_id=${folderId}"`);
+
+  const dynamicFolderPath = folderPath || "users/id_123";
+  const uploadFolderPathLines = [
+    `curl -X POST "${base}/images"`,
+    auth,
+    `-F "file=@${file}"`,
+    `-F "visibility=${visibility}"`,
+    `-F "folder_path=${dynamicFolderPath}"`,
+  ];
 
   const updateBody: Record<string, unknown> = {
     title: "Título de ejemplo",
@@ -86,6 +105,14 @@ export function buildSnippets(config: SnippetConfig): Snippet[] {
       description:
         "Carga multipart. `file` es obligatorio; `visibility` y `folder_id` opcionales.",
       curl: join(uploadLines),
+    },
+    {
+      id: "upload-dynamic-folder",
+      method: "POST",
+      title: "Subir imagen a una carpeta dinámica",
+      description:
+        "`folder_path` crea la jerarquía de carpetas que falte (como `mkdir -p`). Excluyente con `folder_id`.",
+      curl: join(uploadFolderPathLines),
     },
     {
       id: "list",

@@ -7,6 +7,7 @@ const base: SnippetConfig = {
   apiKey: "img_test_" + "a".repeat(40),
   imageId: "abc-123",
   folderId: "",
+  folderPath: "",
   filePath: "./foto.png",
   visibility: "PUBLIC",
   limit: 20,
@@ -17,6 +18,7 @@ describe("buildSnippets", () => {
   it("emits one snippet per operation", () => {
     expect(buildSnippets(base).map((s) => s.id)).toEqual([
       "upload",
+      "upload-dynamic-folder",
       "list",
       "get",
       "update",
@@ -48,6 +50,19 @@ describe("buildSnippets", () => {
     expect(
       buildSnippets({ ...base, folderId: "fld-9" }).find((s) => s.id === "upload")!.curl,
     ).toContain('-F "folder_id=fld-9"');
+  });
+
+  it("prefers folder_path over folder_id on upload when both are set", () => {
+    const upload = buildSnippets({ ...base, folderId: "fld-9", folderPath: "users/id_123" }).find(
+      (s) => s.id === "upload",
+    )!;
+    expect(upload.curl).toContain('-F "folder_path=users/id_123"');
+    expect(upload.curl).not.toContain("folder_id");
+  });
+
+  it("defaults the dynamic-folder example to a placeholder path", () => {
+    const dynamic = buildSnippets(base).find((s) => s.id === "upload-dynamic-folder")!;
+    expect(dynamic.curl).toContain('-F "folder_path=users/id_123"');
   });
 
   it("sends folder_id: null in the update body when unset", () => {
